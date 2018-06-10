@@ -1,12 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "new inputdevice", menuName = "Got Change/On Screen Input Device")]
 public class OnScreenInputDevice : ScriptableObject, IInputDevice
 {
     [Range(0.1f, 1000)]
+    [Tooltip("Pixel count (after DPI scaling is taken into consideration) that is regarded as max input in either the x or the y direciton.")]
     public float MaxDistance = 1.0f;
+
+    public const float BASE_DPI = 96f;
+    
+    [Range(0.1f, 100f)]
+    [Tooltip("Based around a DPI of 96. Why 96? Because that's the DPI of Bona's main Unity screen on his workstation.")]
+    public float DpiScalingFactor = 1.0f;
 
     private Vector2? CurrentPivot = null;
 
@@ -28,9 +36,18 @@ public class OnScreenInputDevice : ScriptableObject, IInputDevice
 
     public Vector2? GetCurrentOnScreenLocation()
     {
-        return GetMousePosition();
+        
+        var mousePosition = GetMousePosition();
+        if (mousePosition.HasValue) {
+            return mousePosition;
+        }
 
-        // TODO: Implement touch support
+        var touchPosition = GetTouchPosition();
+        if(touchPosition != null) {
+            return touchPosition;
+        }
+
+        return null;
     }
 
     public Vector2? GetMousePosition()
@@ -42,24 +59,44 @@ public class OnScreenInputDevice : ScriptableObject, IInputDevice
         }
     }
 
-    public Vector2 GetOffsetFromPivot(Vector2 pivot, Vector2 position, float maxDistance)
+    public Vector2? GetTouchPosition()
     {
-        return Limit((pivot - position) / MaxDistance);
-    }
-    
-    public Vector2 Limit(Vector2 v)
-    {
-        return new Vector2(Limit(v.x), Limit(v.y));
+        if(Input.touchCount == 0) {
+            return null;
+        }
+
+        var touch = Input.touches.First();
+        return touch.position;
     }
 
-    public float Limit(float v, float limit = 1.0f)
+    public Vector2 GetOffsetFromPivot(Vector2 pivot, Vector2 position, float maxDistance)
     {
-        if(v > limit) {
+        var result = (position - pivot);
+        return LimitVectorToUnit(DpiScaleCorrection(result));
+    }
+    
+    public Vector3 DpiScaleCorrection(Vector3 value)
+    {
+        var dpi = Screen.dpi;
+        var dpiScaling = dpi * DpiScalingFactor;
+
+        var result = value / dpiScaling;
+        return result;
+    }
+
+    public Vector2 LimitVectorToUnit(Vector2 value)
+    {
+        return new Vector2(Limit(value.x), Limit(value.y));
+    }
+
+    public float Limit(float alue, float limit = 1.0f)
+    {
+        if(alue > limit) {
             return limit;
-        }else if(v < -limit) {
+        }else if(alue < -limit) {
             return -limit;
         } else {
-            return v;
+            return alue;
         }
     }
 }

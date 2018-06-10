@@ -301,7 +301,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a411c0540f4c8d84aa8d4880ed7939f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InputDeviceObject: {fileID: 11400000, guid: 2ca98b8daf5ce9a448c302a39d85ccd5, type: 2}
+  EditorInputDeviceObject: {fileID: 11400000, guid: 2ca98b8daf5ce9a448c302a39d85ccd5,
+    type: 2}
+  MobileInputDeviceObject: {fileID: 11400000, guid: 2ca98b8daf5ce9a448c302a39d85ccd5,
+    type: 2}
+  FallbackInputDeviceObject: {fileID: 11400000, guid: 6ff29ec38c8f9314b9b0859543c7b83c,
+    type: 2}
   InputHandlerObject: {fileID: 291352009}
 --- !u!4 &1115082126
 Transform:

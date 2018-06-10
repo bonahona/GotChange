@@ -6,6 +6,8 @@ public class TestInput : MonoBehaviour, IInputHandler
 {
     public void TakeInput(InputState state)
     {
+        Debug.Log(state.LeftStick);
+
         transform.Translate(state.LeftStick * Time.deltaTime);
     }
 
